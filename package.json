@@ -15,8 +15,10 @@
     "url": "git://github.com/cayasso/advent-mongo.git"
   },
   "scripts": {
-    "test": "make test",
-    "prepublish": "make"
+    "test": "./node_modules/.bin/mocha",
+    "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
+    "prepublish": "npm run build",
+    "clean": "rm -rf lib/"
   },
   "dependencies": {
     "any-promise": "^1.1.0",
