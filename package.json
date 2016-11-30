@@ -1,6 +1,6 @@
 {
   "name": "advent-mongo",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "MongoDB engine for advent.",
   "keywords": [
     "store",
@@ -22,6 +22,7 @@
     "any-promise": "^1.1.0",
     "mongojs": "^2.4.0"
   },
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.8.0",
     "babel-core": "^6.8.0",

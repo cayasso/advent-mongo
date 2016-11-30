@@ -4,15 +4,15 @@ import createEngine from '../src/index'
 let db = null
 let engine = null
 let testEvents = [
-  { id: 1, type: 'created', payload: { a: 1 } },
-  { id: 1, type: 'updated', payload: { a: 2 } },
-  { id: 1, type: 'tested', payload: { a: 3 } },
-  { id: 2, type: 'created', payload: { a: 1 } },
-  { id: 3, type: 'created', payload: { a: 2 } },
-  { id: 3, type: 'created', payload: { a: 3 } }
+  { entityId: '1', type: 'created', payload: { a: 1 } },
+  { entityId: '1', type: 'updated', payload: { a: 2 } },
+  { entityId: '1', type: 'tested', payload: { a: 3 } },
+  { entityId: '2', type: 'created', payload: { a: 1 } },
+  { entityId: '3', type: 'created', payload: { a: 2 } },
+  { entityId: '3', type: 'created', payload: { a: 3 } }
 ]
 
-describe('advent-memory', () => {
+describe('advent-mongodb', () => {
 
   before(() => {
     db = mongojs('eventstream-test')
@@ -62,14 +62,14 @@ describe('advent-memory', () => {
   describe('load', () => {
 
     it('should return a promise', () => {
-      engine.load([]).then.should.be.a.Function
+      engine.load('1').then.should.be.a.Function
     })
 
     it('should load events by id', (done) => {
-      engine.load(1).then(events => {
-        let id = 1
+      let id = '1'
+      engine.load(id).then(events => {
         events.length.should.eql(3)
-        events.should.eql(testEvents.filter(e => e.id === id))
+        events.should.eql(testEvents.filter(e => e.entityId === id))
         done()
       }).catch(done)
     })
