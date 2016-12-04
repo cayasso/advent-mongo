@@ -1,6 +1,6 @@
 {
   "name": "advent-mongo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MongoDB engine for advent.",
   "keywords": [
     "store",
