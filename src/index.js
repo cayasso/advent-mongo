@@ -52,5 +52,5 @@ export default (conn, options = {}) => {
     })
   }
 
-  return { load, save }
+  return { load, save, db }
 }
