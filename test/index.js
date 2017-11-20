@@ -1,83 +1,88 @@
-import mongojs from 'mongojs'
-import createEngine from '../src/index'
+const createEngine = require('../index')
+const should = require('should')
 
-let db = null
 let engine = null
-let testEvents = [
-  { entityId: '1', type: 'created', payload: { a: 1 } },
-  { entityId: '1', type: 'updated', payload: { a: 2 } },
-  { entityId: '1', type: 'tested', payload: { a: 3 } },
-  { entityId: '2', type: 'created', payload: { a: 1 } },
-  { entityId: '3', type: 'created', payload: { a: 2 } },
-  { entityId: '3', type: 'created', payload: { a: 3 } }
+const testEvents = [
+  { entity: { id: '1', name: 'test' }, type: 'created', payload: { a: 1 } },
+  { entity: { id: '1', name: 'test' }, type: 'updated', payload: { a: 2 } },
+  { entity: { id: '1', name: 'test' }, type: 'tested', payload: { a: 3 } },
+  { entity: { id: '2', name: 'test' }, type: 'created', payload: { a: 1 } },
+  { entity: { id: '3', name: 'test' }, type: 'created', payload: { a: 2 } },
+  { entity: { id: '3', name: 'test' }, type: 'created', payload: { a: 3 } }
 ]
 
-describe('advent-mongodb', () => {
+describe('advent-mongodb', function () {
 
-  before(() => {
-    db = mongojs('eventstream-test')
-    engine = createEngine(db)
+  before(async function () {
+    engine = createEngine('localhost/eventstream-test')
   })
 
-  it('should be a function', () => {
+  it('should be a function', function () {
     createEngine.should.be.a.Function
   })
 
-  it('should return an object', () => {
+  it('should return an object', function () {
     engine.should.be.an.Object
   })
 
-  it('should export the right methods', () => {
+  it('should export the right methods', function () {
     engine.save.should.be.a.Function
     engine.load.should.be.a.Function
   })
 
-  describe('save', () => {
+  describe('save', function () {
 
-    it('should return a promise', () => {
+    it('should return a promise', function () {
       engine.save([]).then.should.be.a.Function
     })
 
-    it('should save events', (done) => {
-      engine.save(testEvents).then(events => {
-        events.length.should.eql(testEvents.length)
-        events.should.eql(testEvents)
-        done()
-      }).catch(done)
+    it('should save events', async function () {
+      const events = await engine.save(testEvents)
+      events.length.should.eql(testEvents.length)
+      events.should.eql(testEvents)
     })
 
-    it('should not save events with missing ids', (done) => {
-      let wrongEvents = [
+    it('should not save events with missing entity ids', async function () {
+      const wrongEvents = [
         { type: 'updated', payload: { a: 2 } },
         { type: 'updated', payload: { a: 2 } }
       ]
-      engine.save(wrongEvents).then(events => {
-        events.length.should.eql(0)
-        events.should.eql([])
-        done()
-      }).catch(done)
+      const events = await engine.save(wrongEvents)
+      events.length.should.eql(0)
+      events.should.eql([])
+    })
+
+    it('should not save events with missing entity name', async function () {
+      const wrongEvents = [
+        { type: 'updated', payload: { a: 2 } },
+        { type: 'updated', payload: { a: 2 } }
+      ]
+      const events = await engine.save(wrongEvents)
+      events.length.should.eql(0)
+      events.should.eql([])
     })
   })
 
-  describe('load', () => {
+  describe('load', function () {
 
-    it('should return a promise', () => {
+    it('should return a promise', function () {
       engine.load('1').then.should.be.a.Function
     })
 
-    it('should load events by id', (done) => {
-      let id = '1'
-      engine.load(id).then(events => {
-        events.length.should.eql(3)
-        events.should.eql(testEvents.filter(e => e.entityId === id))
-        done()
-      }).catch(done)
+    it('should load events by id', async function () {
+      const id = '1'
+      const events = await engine.load(id)
+      events.length.should.eql(3)
+      events.should.eql(testEvents.filter(e => e.entity.id === id))
     })
 
   })
 
-  after((done) => {
-    db.dropDatabase(done)
+  after(function (done) {
+    engine.db._db.dropDatabase(function () {
+      engine.db.close()
+      done()
+    })
   })
 
 })

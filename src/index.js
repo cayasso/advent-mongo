@@ -1,20 +1,31 @@
 'use strict'
 
-/**
- * Module dependencies.
- */
+const monk = require('monk')
 
-import Promise from 'any-promise'
-import mongojs from 'mongojs'
-
-export default (conn, options = {}) => {
-  const db = mongojs(conn || 'eventstream')
-  const coll = db.collection(options.collection || 'events')
+function createEngine(conn, options = {}) {
+  const { collections = {} } = options
+  const db = monk(conn || 'localhost/eventstream')
+  const events = db.get(collections.events || 'events')
+  const counters = db.get(collections.counts || 'counts')
 
   db.on('error', console.error)
 
-  coll.ensureIndex({ entityId: 1, version: 1 })
-  coll.ensureIndex({ version: 1 })
+  events.createIndex({ 'entity.id': 1, version: 1 })
+  events.createIndex({ version: 1 })
+
+  /**
+   * Get sequence number for versioning.
+   *
+   * @param {String} name
+   * @return {Promise}
+   * @api public
+   */
+
+  function seq(name) {
+    const query = { entity: name }
+    const update = { $inc: { seq: 1 }, $set: { entity: name } }
+    return counters.findOneAndUpdate(query, update, { upsert: true })
+  }
 
   /**
    * Load events.
@@ -25,12 +36,7 @@ export default (conn, options = {}) => {
    */
 
   function load(id) {
-    return new Promise((accept, reject) => {
-      coll.find({ entityId: id }).sort({ version: 1 }, (err, events) => {
-        if (err) reject(err)
-        else accept(events)
-      })
-    })
+    return events.find({ 'entity.id': id }, { sort: { version: 1 } })
   }
 
   /**
@@ -41,16 +47,25 @@ export default (conn, options = {}) => {
    * @api public
    */
 
-  function save(events) {
-    return new Promise((accept, reject) => {
-      events = events.filter(e => !!e.entityId)
-      if (!events.length) return accept([])
-      coll.insert(events, (err, events) => {
-        if (err) reject(err)
-        else accept(events)
-      })
-    })
+  async function save(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+      return []
+    }
+
+    const _events = []
+
+    for (const event of data) {
+      const { entity } = event
+      if (entity && entity.name && entity.id) {
+        const { seq: version } = await seq(entity.name)
+        _events.push(Object.assign(event, { version }))
+      }
+    }
+
+    return events.insert(_events)
   }
 
   return { load, save, db }
 }
+
+module.exports = createEngine
