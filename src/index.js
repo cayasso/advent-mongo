@@ -13,12 +13,6 @@ function createEngine(conn, options = {}) {
   events.createIndex({ 'entity.id': 1, version: 1 })
   events.createIndex({ version: 1 })
 
-
-
-
-
-
-
   /**
    * Get sequence number for versioning.
    *
