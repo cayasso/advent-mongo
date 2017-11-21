@@ -17,9 +17,7 @@
   "scripts": {
     "test": "npm run lint && mocha",
     "build": "npm run clean && babel src -d lib",
-    "pretty": "prettier --no-semi --single-quote --write src/**/*.js",
     "prepublish": "npm run build",
-    "precommit": "lint-staged",
     "clean": "rm -rf lib/",
     "lint": "xo --env=mocha"
   },
@@ -28,7 +26,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint-config-prettier": "^2.8.0",
     "mocha": "~4.0.1",
@@ -37,21 +34,11 @@
     "xo": "^0.18.2"
   },
   "xo": {
-    "ignores": [
-      "examples/**/*"
-    ],
     "extends": "prettier",
     "rules": {
       "no-await-in-loop": 0,
       "unicorn/no-process-exit": 0
     }
-  },
-  "lint-staged": {
-    "*.js": [
-      "npm run lint",
-      "prettier --single-quote --no-semi --write",
-      "git add"
-    ]
   },
   "license": "MIT",
   "main": "./index",
