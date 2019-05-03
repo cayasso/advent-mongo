@@ -8,6 +8,13 @@ const createEngine = (conn, options = {}) => {
   const eventCol = collections.events || 'events'
   const countCol = collections.counts || 'counts'
 
+  /**
+   * Create initial indexes.
+   *
+   * @return {Void}
+   * @private
+   */
+
   const createIndexes = async () => {
     const counts = await db.get(eventCol)
     const events = await db.get(eventCol)
@@ -22,7 +29,7 @@ const createEngine = (conn, options = {}) => {
    *
    * @param {String} name
    * @return {Promise}
-   * @api public
+   * @public
    */
 
   const seq = async (name) => {
@@ -36,7 +43,7 @@ const createEngine = (conn, options = {}) => {
    *
    * @param {String|Number} id
    * @return {Promise}
-   * @api public
+   * @public
    */
 
   const load = async (id) => {
@@ -49,7 +56,7 @@ const createEngine = (conn, options = {}) => {
    *
    * @param {Array} events
    * @return {Promise}
-   * @api public
+   * @public
    */
 
   const save = async (data) => {
