@@ -269,9 +269,9 @@ module.exports = uri => {
    * @type public
    */
 
-  const close = () => {
+  const close = async () => {
     if (!client || !client.isConnected) {
-      return
+      return Promise.resolve(undefined)
     }
 
     return client.close(true)
@@ -301,7 +301,7 @@ module.exports = uri => {
 
   const dropDatabase = () => {
     if (!client || !client.isConnected || !db) {
-      return
+      return Promise.resolve(undefined)
     }
 
     return db.dropDatabase()
