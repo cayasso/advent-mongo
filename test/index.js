@@ -73,7 +73,6 @@ describe('advent-mongodb', () => {
     it('should load events by id', async () => {
       const id = '1'
       const events = await engine.load(id)
-      console.log(events)
       should(events.length).eql(3)
       should(events).eql(testEvents.filter(e => e.entity.id === id))
     })
