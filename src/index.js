@@ -89,8 +89,6 @@ const createEngine = (conn, options = {}) => {
     return events.insertMany(_events)
   }
 
-  createIndexes()
-
   return { load, save, db }
 }
 
