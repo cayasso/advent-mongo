@@ -14,13 +14,13 @@ $ npm install advent-mongo
 Pass as third parameter in options objects when creating an advent store.
 
 ```js
-const createEngine = require('advent-mongo')
 const { createStore } = require('advent')
-const eventsReducer = require('./events')
-const commandsReducer = require('./commands')
+const createEngine = require('advent-mongo')
+const decider = require('./decider')
+const reducer = require('./reducer')
 
-const engine = createEngine('mongodb://localhost/eventstream-test')
-const store = createStore(comandsReducer, eventsReducer, { engine })
+const engine = createEngine('mongodb://localhost:27017/eventstream')
+const store = createStore(decider, reducer, { engine })
 // All calls to store(..) will be saved or events will be loaded by our engine
 ```
 ## Run tests

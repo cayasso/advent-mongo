@@ -1,6 +1,5 @@
 support
 test
-src
 *.log
 .DS_Store
 package-lock.json
