@@ -1,17 +1,21 @@
 'use strict'
 
-const monk = require('monk')
+const createDatabase = require('./db')
 
 function createEngine(conn, options = {}) {
   const { collections = {} } = options
-  const db = monk(conn || 'localhost/eventstream')
-  const events = db.get(collections.events || 'events')
-  const counters = db.get(collections.counts || 'counts')
+  const db = createDatabase(conn || 'mongodb://localhost:27017/eventstream')
+  const eventCol = collections.events || 'events'
+  const countCol = collections.counts || 'counts'
 
-  db.on('error', console.error)
+  const createIndexes = async () => {
+    const counts = await db.get(eventCol)
+    const events = await db.get(eventCol)
 
-  events.createIndex({ 'entity.id': 1, version: 1 })
-  events.createIndex({ version: 1 })
+    events.createIndex({ 'entity.id': 1, version: 1 })
+    events.createIndex({ version: 1 })
+    counts.createIndex({ entity: 1 })
+  }
 
   /**
    * Get sequence number for versioning.
@@ -21,10 +25,10 @@ function createEngine(conn, options = {}) {
    * @api public
    */
 
-  function seq(name) {
-    const query = { entity: name }
+  const seq = async (name) => {
+    const counts = await db.get(countCol)
     const update = { $inc: { seq: 1 }, $set: { entity: name } }
-    return counters.findOneAndUpdate(query, update, { upsert: true })
+    return counts.updateOne({ entity: name }, update, { upsert: true })
   }
 
   /**
@@ -35,8 +39,9 @@ function createEngine(conn, options = {}) {
    * @api public
    */
 
-  function load(id) {
-    return events.find({ 'entity.id': id }, { sort: { version: 1 } })
+  const load = async (id) => {
+    const events = await db.get(eventCol)
+    return events.findMany({ 'entity.id': id }, { sort: 'version' })
   }
 
   /**
@@ -47,11 +52,12 @@ function createEngine(conn, options = {}) {
    * @api public
    */
 
-  async function save(data) {
+  const save = async (data) => {
     if (!Array.isArray(data) || data.length === 0) {
       return []
     }
 
+    const events = await db.get(eventCol)
     const _events = []
 
     for (const event of data) {
@@ -62,8 +68,12 @@ function createEngine(conn, options = {}) {
       }
     }
 
-    return events.insert(_events)
+    if (_events.length === 0) return []
+
+    return events.insertMany(_events)
   }
+
+  createIndexes()
 
   return { load, save, db }
 }

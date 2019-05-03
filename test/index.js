@@ -1,5 +1,5 @@
 const should = require('should')
-const createEngine = require('../')
+const createEngine = require('../src')
 
 let engine = null
 const testEvents = [
@@ -11,10 +11,11 @@ const testEvents = [
   { entity: { id: '3', name: 'test' }, type: 'created', payload: { a: 3 } }
 ]
 
+const dbName = 'eventstream-test'
 describe('advent-mongodb', () => {
 
   before(async () => {
-    engine = createEngine('localhost/eventstream-test')
+    engine = createEngine(`mongodb://localhost:27017/${dbName}`)
   })
 
   it('should be a function', () => {
@@ -72,17 +73,16 @@ describe('advent-mongodb', () => {
     it('should load events by id', async () => {
       const id = '1'
       const events = await engine.load(id)
+      console.log(events)
       should(events.length).eql(3)
       should(events).eql(testEvents.filter(e => e.entity.id === id))
     })
 
   })
 
-  after((done) => {
-    engine.db._db.dropDatabase(() => {
-      engine.db.close()
-      done()
-    })
+  after(async () => {
+    await engine.db.dropDatabase(dbName)
+    await engine.db.close()
   })
 
 })
