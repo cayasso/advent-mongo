@@ -26,18 +26,6 @@ const parseSort = (key = '') => {
 }
 
 /**
- * Checks if a value is a valid bson ObjectId
- *
- * @param {String} id
- * @return {Boolean}
- * @api public
- */
-
-const isObjectId = id => {
-  return ObjectID.isValid(id)
-}
-
-/**
  * Casts to objectid
  *
  * @param {Mixed} str - hex id or ObjectId
@@ -319,5 +307,5 @@ module.exports = uri => {
     return db.dropDatabase()
   }
 
-  return { cast, close, get, id: getId, isObjectId, parseSort, dropDatabase }
+  return { cast, close, get, id: getId, parseSort, dropDatabase }
 }

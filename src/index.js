@@ -19,9 +19,9 @@ const createEngine = (conn, options = {}) => {
     const counts = await db.get(eventCol)
     const events = await db.get(eventCol)
 
-    events.createIndex({ 'entity.id': 1, version: 1 })
-    events.createIndex({ version: 1 })
-    counts.createIndex({ entity: 1 })
+    await events.createIndex({ 'entity.id': 1, version: 1 })
+    await events.createIndex({ version: 1 })
+    await counts.createIndex({ entity: 1 })
   }
 
   /**

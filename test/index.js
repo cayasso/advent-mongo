@@ -80,7 +80,7 @@ describe('advent-mongodb', () => {
   })
 
   after(async () => {
-    await engine.db.dropDatabase(dbName)
+    await engine.db.dropDatabase()
     await engine.db.close()
   })
 

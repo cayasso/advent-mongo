@@ -16,7 +16,7 @@
     "url": "git://github.com/cayasso/advent-mongo.git"
   },
   "scripts": {
-    "test": "npm run lint && mocha",
+    "test": "yarn lint && mocha",
     "lint": "xo --env=mocha"
   },
   "dependencies": {
