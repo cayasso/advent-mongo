@@ -2,7 +2,7 @@
 
 const createDatabase = require('./db')
 
-function createEngine(conn, options = {}) {
+const createEngine = (conn, options = {}) => {
   const { collections = {} } = options
   const db = createDatabase(conn || 'mongodb://localhost:27017/eventstream')
   const eventCol = collections.events || 'events'
