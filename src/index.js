@@ -19,8 +19,8 @@ const createEngine = (conn, options = {}) => {
 
   const createIndexes = async () => {
     if (ready) return
-    const counts = await coll(eventCol)
-    const events = await coll(eventCol)
+    const counts = await db.get(eventCol)
+    const events = await db.get(eventCol)
 
     await events.createIndex({ 'entity.id': 1, version: 1 })
     await events.createIndex({ version: 1 })
@@ -88,6 +88,8 @@ const createEngine = (conn, options = {}) => {
 
     return events.insertMany(_events)
   }
+
+  createIndexes()
 
   return { load, save, db }
 }
