@@ -11,11 +11,11 @@ const testEvents = [
   { entity: { id: '3', name: 'test' }, type: 'created', payload: { a: 3 } }
 ]
 
-const dbName = 'eventstream-test'
+
 describe('advent-mongodb', () => {
 
   before(async () => {
-    engine = createEngine(`mongodb://localhost:27017/${dbName}`)
+    engine = createEngine('mongodb://localhost:27017/eventstream-test')
   })
 
   it('should be a function', () => {

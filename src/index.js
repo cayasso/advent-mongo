@@ -8,6 +8,8 @@ const createEngine = (conn, options = {}) => {
   const eventCol = collections.events || 'events'
   const countCol = collections.counts || 'counts'
 
+  let ready = false
+
   /**
    * Create initial indexes.
    *
@@ -16,12 +18,19 @@ const createEngine = (conn, options = {}) => {
    */
 
   const createIndexes = async () => {
-    const counts = await db.get(eventCol)
-    const events = await db.get(eventCol)
+    if (ready) return
+    const counts = await coll(eventCol)
+    const events = await coll(eventCol)
 
     await events.createIndex({ 'entity.id': 1, version: 1 })
     await events.createIndex({ version: 1 })
     await counts.createIndex({ entity: 1 })
+    ready = true
+  }
+
+  const coll = async (name) => {
+    await createIndexes()
+    return db.get(name)
   }
 
   /**
@@ -33,7 +42,7 @@ const createEngine = (conn, options = {}) => {
    */
 
   const seq = async (name) => {
-    const counts = await db.get(countCol)
+    const counts = await coll(countCol)
     const update = { $inc: { seq: 1 }, $set: { entity: name } }
     return counts.updateOne({ entity: name }, update, { upsert: true })
   }
@@ -47,7 +56,7 @@ const createEngine = (conn, options = {}) => {
    */
 
   const load = async (id) => {
-    const events = await db.get(eventCol)
+    const events = await coll(eventCol)
     return events.findMany({ 'entity.id': id }, { sort: 'version' })
   }
 
@@ -64,7 +73,7 @@ const createEngine = (conn, options = {}) => {
       return []
     }
 
-    const events = await db.get(eventCol)
+    const events = await coll(eventCol)
     const _events = []
 
     for (const event of data) {
@@ -79,8 +88,6 @@ const createEngine = (conn, options = {}) => {
 
     return events.insertMany(_events)
   }
-
-  createIndexes()
 
   return { load, save, db }
 }
